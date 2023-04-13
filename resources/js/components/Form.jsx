@@ -8,6 +8,7 @@ const Form = () => {
   const [currentTab, setCurrentTab] = useState("tabIncome");
   const [selectItem, setSelectItem] = useState(["給料"]);
   const [selectDate, setSelectDate] = useState(yyyy + "-" + mm + "-" + dd);
+  const [items, setItems] = useState([]);
   const [inputAmount, setInputAmount] = useState("");
   const [incomeAmount, setIncomeAmount] = useState(0);
   const [expenseAmount, setExpenseAmount] = useState(0);
@@ -142,6 +143,29 @@ const Form = () => {
       console.error(error);
     } 
   };
+
+  const handleDelete = async (id) => {
+    console.log(id.id);
+  try {
+    const response = await fetch(`/api/data/${id}`, {
+      method: 'DELETE',
+    });
+    const data = await response.json();
+    console.log(data); // 削除が成功した場合に、成功した旨のメッセージが表示される
+
+    if (data.success) {
+      // 削除に成功した場合、削除されたデータを一覧から取り除く
+      setItems(items.filter((item) => item.id !== id));
+      console.log(item);
+    } else {
+      // 削除に失敗した場合、エラーメッセージを表示するなどの処理を行う
+      console.log(data.message);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
   
   return (
     <>
@@ -274,8 +298,11 @@ const Form = () => {
                     <td>{transaction.memo}</td>
                     <td>
                       <button
-                        type="button"
-                        onClick={() => deleteTransaction(transaction)}
+                        type="submit"
+                        onClick={() => {
+                          deleteTransaction(transaction);
+                          handleDelete(transaction);
+                        }}
                       >
                         削除
                       </button>
@@ -306,7 +333,10 @@ const Form = () => {
                     <td>
                       <button
                         type="button"
-                        onClick={() => deleteTransaction(transaction)}
+                        onClick={() => {
+                          deleteTransaction(transaction);
+                          handleDelete();
+                        }}
                       >
                         削除
                       </button>
