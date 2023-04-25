@@ -8,7 +8,6 @@ const Form = () => {
   const [currentTab, setCurrentTab] = useState("tabIncome");
   const [selectItem, setSelectItem] = useState(["給料"]);
   const [selectDate, setSelectDate] = useState(yyyy + "-" + mm + "-" + dd);
-  const [items, setItems] = useState([]);
   const [inputAmount, setInputAmount] = useState("");
   const [incomeAmount, setIncomeAmount] = useState(0);
   const [expenseAmount, setExpenseAmount] = useState(0);
@@ -40,6 +39,25 @@ const Form = () => {
     "/img/rent.svg"
   ];
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch('api/gettabledata');
+      const data = await response.json();
+      const filteredInc = data.filter(item => item.tab === 'tabIncome');
+      setIncTransactions(filteredInc);
+      const filteredExp = data.filter(item => item.tab !== 'tabIncome');
+      setExpTransactions(filteredExp);
+      const incAmountArray = filteredInc.map(item => item.amount);
+      const incSum = incAmountArray.reduce((total, amount) => total + amount, 0);
+      setIncomeAmount(incSum);
+      const expAmountArray = filteredExp.map(item => item.amount);
+      const expSum = expAmountArray.reduce((total, amount) => total + amount, 0);
+      setExpenseAmount(expSum);
+    };
+    fetchData();
+  }, []);
+
+
   const switchIncomeTab = () => {
     setCurrentTab("tabIncome");
     setSelectItem([""]);
@@ -54,124 +72,92 @@ const Form = () => {
     setSelectItem(item);
   };
 
-  const addTransaction = () => {
-    if (!selectItem[0]) return alert("項目を入力してください");
-    if (!inputAmount) return alert("金額を入力してください");
-    const newTransaction = {
-      id:
-        currentTab === "tabIncome"
-          ? incTransactions.length + 1
-          : expTransactions.length + 1,
-      date: selectDate,
-      item: selectItem,
-      amount: parseFloat(inputAmount),
-      memo: inputMemo,
-      tab: currentTab
-    };
-    if (currentTab === "tabIncome") {
-      setIncTransactions([...incTransactions, newTransaction]);
-      setIncomeAmount(incomeAmount + parseFloat(inputAmount));
-    } else {
-      setExpTransactions([...expTransactions, newTransaction]);
-      setExpenseAmount(expenseAmount + parseFloat(inputAmount));
-    }
-    /* setSelectItem(["給料"]); 
-    setSelectDate(""); 
+  const onClickAdd =  async (e) => {
+  e.preventDefault();
+  if (!selectItem[0]) return alert("項目を入力してください");
+  if (!inputAmount) return alert("金額を入力してください");
+
+  const inputDate = new Date(selectDate); 
+  const formatDate = 
+    inputDate.getFullYear() +
+    '-' +
+    ('0' + (inputDate.getMonth() + 1)).slice(-2) +
+    '-' +
+    ('0' + inputDate.getDate()).slice(-2);
+
+  try {
+    const response = await fetch("/api/form", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tab: currentTab,
+        item: selectItem.join(),
+        date: formatDate,
+        amount: inputAmount,
+        memo: inputMemo,
+      }),
+    });
+    const data = await response.json();
+    setSelectItem(["給料"]);
+    setSelectDate(yyyy + "-" + mm + "-" + dd);
     setInputMemo("");
-    setInputAmount(0); */
-  };
-
-  const deleteTransaction = (del) => {
-    if (del.tab === "tabIncome") {
-      setIncomeAmount(incomeAmount - del.amount);
-      setIncTransactions(
-        incTransactions.filter((transaction) => transaction.id !== del.id)
-      );
-    } else {
-      setExpenseAmount(expenseAmount - del.amount);
-      setExpTransactions(
-        expTransactions.filter((transaction) => transaction.id !== del.id)
-      );
-    }
-  };
-
-  useEffect(() => {
-    setTotalAmount(incomeAmount - expenseAmount);
-  }, [incomeAmount, expenseAmount]);
-
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const inputDate = new Date(selectDate); 
-    const formatDate = 
-      inputDate.getFullYear() +
-      '-' +
-      ('0' + (inputDate.getMonth() + 1)).slice(-2) +
-      '-' +
-      ('0' + inputDate.getDate()).slice(-2);
-      
-      console.log(currentTab);
-      console.log(selectItem);
-      console.log(selectItem.join());
-      console.log(formatDate);
-      console.log(inputAmount);
-      console.log(inputMemo);
-
-    try {
-      const response = await fetch("/api/form", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          tab: currentTab,
-          item: selectItem.join(),
-          date: formatDate,
-          amount: inputAmount,
-          memo: inputMemo,
-        }),
-      });
-      const data = await response.json();
-      console.log(data);
-      setSelectItem(["給料"]);
-      setSelectDate(yyyy + "-" + mm + "-" + dd);
-      setInputMemo("");
-      setInputAmount(0);
+    setInputAmount(0);
       
     } catch (error) {
       console.error(error);
     } 
-  };
 
+    try {
+      const response = await fetch(`api/gettabledata`);
+      const data = await response.json();
+      const filteredInc = data.filter(item => item.tab === 'tabIncome');
+      setIncTransactions(filteredInc);
+      const filteredExp = data.filter(item => item.tab !== 'tabIncome');
+      setExpTransactions(filteredExp);
+
+      const incAmountArray = filteredInc.map(item => item.amount);
+      const incSum = incAmountArray.reduce((total, amount) => total + amount, 0);
+      setIncomeAmount(incSum);
+      const expAmountArray = filteredExp.map(item => item.amount);
+      const expSum = expAmountArray.reduce((total, amount) => total + amount, 0);
+      setExpenseAmount(expSum);    
+    } catch (error) {
+      console.error('エラーが発生しました');
+    }    
+  }
+  
+  useEffect(() => {
+    setTotalAmount(incomeAmount - expenseAmount);
+  }, [incomeAmount, expenseAmount]);
+
+  //削除時のアクション
   const handleDelete = async (id) => {
-    console.log(id.id);
   try {
     const response = await fetch(`/api/data/${id}`, {
       method: 'DELETE',
     });
-    const data = await response.json();
-    console.log(data); // 削除が成功した場合に、成功した旨のメッセージが表示される
-
-    if (data.success) {
-      // 削除に成功した場合、削除されたデータを一覧から取り除く
-      setItems(items.filter((item) => item.id !== id));
-      console.log(item);
-    } else {
-      // 削除に失敗した場合、エラーメッセージを表示するなどの処理を行う
-      console.log(data.message);
-    }
+    setIncTransactions(incTransactions.filter((item) => item.id !== id));
+    setExpTransactions(expTransactions.filter((item) => item.id !== id));
+    
+    const incAmountSum = incTransactions
+      .filter((item) => item.id !== id)
+      .reduce((sum, item) => sum + Number(item.amount), 0);
+    const expAmountSum = expTransactions
+      .filter((item) => item.id !== id)
+      .reduce((sum, item) => sum + Number(item.amount), 0);
+    setIncomeAmount(incAmountSum);
+    setExpenseAmount(expAmountSum);
   } catch (error) {
-    console.error(error);
+    console.error('一覧からの削除処理に失敗しました');
   }
 };
-
   
   return (
     <>
       <div className="App">
         <div className="headerTitle">
-          <h1>家計簿アプリ</h1>
           <button
             className={currentTab === "tabIncome" ? "IsActive" : ""}
             type="button"
@@ -216,7 +202,7 @@ const Form = () => {
             ))}
           </div>
         )}
-        <form onSubmit={handleSubmit}>
+        <form>
           <div className="formWrapper">
             <div className="date">
             <input
@@ -265,7 +251,7 @@ const Form = () => {
             className="submitButton"
             type="submit"
             value="追加"
-            onClick={addTransaction}
+            onClick={onClickAdd}
           />
         </form>
         <dl className="moneyList">
@@ -290,19 +276,16 @@ const Form = () => {
                 </tr>
               </thead>
               <tbody>
-                {incTransactions.map((transaction) => (
-                  <tr key={transaction.id}>
-                    <td>{transaction.date.slice(5)}</td>
-                    <td>{transaction.item}</td>
-                    <td>{transaction.amount}</td>
-                    <td>{transaction.memo}</td>
+                {incTransactions.map((data) => (
+                  <tr key={data.id}>
+                    <td>{data.date}</td>
+                    <td>{data.item}</td>
+                    <td>{data.amount}</td>
+                    <td>{data.memo}</td>
                     <td>
                       <button
                         type="submit"
-                        onClick={() => {
-                          deleteTransaction(transaction);
-                          handleDelete(transaction);
-                        }}
+                        onClick={() => {handleDelete(data.id);}}
                       >
                         削除
                       </button>
@@ -324,19 +307,16 @@ const Form = () => {
                 </tr>
               </thead>
               <tbody>
-                {expTransactions.map((transaction) => (
-                  <tr key={transaction.id}>
-                    <td>{transaction.date.slice(5)}</td>
-                    <td>{transaction.item}</td>
-                    <td>{transaction.amount}</td>
-                    <td>{transaction.memo}</td>
+              {expTransactions.map((data) => (
+                  <tr key={data.id}>
+                    <td>{data.date}</td>
+                    <td>{data.item}</td>
+                    <td>{data.amount}</td>
+                    <td>{data.memo}</td>
                     <td>
                       <button
-                        type="button"
-                        onClick={() => {
-                          deleteTransaction(transaction);
-                          handleDelete();
-                        }}
+                        type="submit"
+                        onClick={() => {handleDelete(data.id);}}
                       >
                         削除
                       </button>
