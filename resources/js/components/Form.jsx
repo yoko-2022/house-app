@@ -57,7 +57,6 @@ const Form = () => {
     fetchData();
   }, []);
 
-
   const switchIncomeTab = () => {
     setCurrentTab("tabIncome");
     setSelectItem([""]);
