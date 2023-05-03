@@ -73,38 +73,38 @@ const Form = () => {
   };
 
   const onClickAdd =  async (e) => {
-  e.preventDefault();
-  if (!selectItem[0]) return alert("項目を入力してください");
-  if (!inputAmount) return alert("金額を入力してください");
+    e.preventDefault();
+    if (!selectItem[0]) return alert("項目を入力してください");
+    if (!inputAmount) return alert("金額を入力してください");
 
-  const inputDate = new Date(selectDate); 
-  const formatDate = 
-    inputDate.getFullYear() +
-    '-' +
-    ('0' + (inputDate.getMonth() + 1)).slice(-2) +
-    '-' +
-    ('0' + inputDate.getDate()).slice(-2);
+    const inputDate = new Date(selectDate); 
+    const formatDate = 
+      inputDate.getFullYear() +
+      '-' +
+      ('0' + (inputDate.getMonth() + 1)).slice(-2) +
+      '-' +
+      ('0' + inputDate.getDate()).slice(-2);
 
-  try {
-    const response = await fetch("/api/form", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        tab: currentTab,
-        item: selectItem.join(),
-        date: formatDate,
-        amount: inputAmount,
-        memo: inputMemo,
-      }),
-    });
-    const data = await response.json();
-    setSelectItem(["給料"]);
-    setSelectDate(yyyy + "-" + mm + "-" + dd);
-    setInputMemo("");
-    setInputAmount(0);
-      
+    try {
+      const response = await fetch("/api/form", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tab: currentTab,
+          item: selectItem.join(),
+          date: formatDate,
+          amount: inputAmount,
+          memo: inputMemo,
+        }),
+      });
+      const data = await response.json();
+      setSelectItem(["給料"]);
+      setSelectDate(yyyy + "-" + mm + "-" + dd);
+      setInputMemo("");
+      setInputAmount(0);
+
     } catch (error) {
       console.error(error);
     } 
@@ -134,25 +134,25 @@ const Form = () => {
 
   //削除時のアクション
   const handleDelete = async (id) => {
-  try {
-    const response = await fetch(`/api/data/${id}`, {
-      method: 'DELETE',
-    });
-    setIncTransactions(incTransactions.filter((item) => item.id !== id));
-    setExpTransactions(expTransactions.filter((item) => item.id !== id));
-    
-    const incAmountSum = incTransactions
-      .filter((item) => item.id !== id)
-      .reduce((sum, item) => sum + Number(item.amount), 0);
-    const expAmountSum = expTransactions
-      .filter((item) => item.id !== id)
-      .reduce((sum, item) => sum + Number(item.amount), 0);
-    setIncomeAmount(incAmountSum);
-    setExpenseAmount(expAmountSum);
-  } catch (error) {
-    console.error('一覧からの削除処理に失敗しました');
-  }
-};
+    try {
+      const response = await fetch(`/api/data/${id}`, {
+        method: 'DELETE',
+      });
+      setIncTransactions(incTransactions.filter((item) => item.id !== id));
+      setExpTransactions(expTransactions.filter((item) => item.id !== id));
+
+      const incAmountSum = incTransactions
+        .filter((item) => item.id !== id)
+        .reduce((sum, item) => sum + Number(item.amount), 0);
+      const expAmountSum = expTransactions
+        .filter((item) => item.id !== id)
+        .reduce((sum, item) => sum + Number(item.amount), 0);
+      setIncomeAmount(incAmountSum);
+      setExpenseAmount(expAmountSum);
+    } catch (error) {
+      console.error('一覧からの削除処理に失敗しました');
+    }
+  };
   
   return (
     <>
