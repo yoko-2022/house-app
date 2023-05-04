@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Laravel</title>
-    <link rel="stylesheet" href="http://localhost:3000/resources/css/style.css">
+    @viteReactRefresh
+    @vite(['resources/css/style.css', 'resources/js/index.jsx'])
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="http://localhost:3000/resources/js/index.jsx"></script>
   </body>
 </html>
