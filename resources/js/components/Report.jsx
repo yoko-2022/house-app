@@ -69,8 +69,8 @@ const Report = () => {
   
   // reportData の値が変更されたときに実行される処理
   useEffect(() => {
-    const calcTotalIncome = calculateTotalAmount("tabIncome");
-    const calcTotalExpense = calculateTotalAmount("tabExpense");
+    const calcTotalIncome = calculateTotalAmount('tabIncome');
+    const calcTotalExpense = calculateTotalAmount('tabExpense');
     
     const totalIncomeItems = calculateTotalItems(incomeItems);
     const totalExpenseItems = calculateTotalItems(expenseItems);
@@ -94,21 +94,21 @@ const Report = () => {
     <div className='report'>
       <form onSubmit={handleSubmit}>
         <input
-          type="month"
-          id="selectMonth"
-          name="selectMonth"
+          type='month'
+          id='selectMonth'
+          name='selectMonth'
           value={selectMonth}
           onChange={(e) => setSelectMonth(e.target.value)}
         />
-        <label htmlFor="selectMonth">のレポートを</label>
-        <button type="submit">表示する</button>
+        <label htmlFor='selectMonth'>のレポートを</label>
+        <button type='submit'>表示する</button>
       </form>
-      <div className="title">
+      <div className='title'>
         <h2>{`${selectYearMonth}の収入`}</h2>
         <h2>{`${selectYearMonth}の支出`}</h2>
       </div>
       <Chart incomePercentage={incomePercentage} expensePercentage={expensePercentage}/>
-      <div className="item">
+      <div className='item'>
         <div>
           {Object.keys(calculateTotalItems(incomeItems)).map((key) => (
             <dl key={key}>
@@ -126,7 +126,7 @@ const Report = () => {
           ))}
         </div>
       </div>
-      <div className="report-txt">
+      <div className='report-txt'>
         <table>
           <thead>
             <tr>

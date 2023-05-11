@@ -64,14 +64,14 @@ const Chart = ({ incomePercentage, expensePercentage }) => {
       <div>
         <Doughnut
           data={dataIncome}
-          width="100%"
+          width='100%'
           options={{ maintainAspectRatio: false }}
           />
       </div>
       <div>
         <Doughnut
           data={dataExpense}
-          width="100%"
+          width='100%'
           options={{ maintainAspectRatio: false }}
         />
       </div>

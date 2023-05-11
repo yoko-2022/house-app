@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Report from './Report';
 import Form from './Form';
 
@@ -10,18 +10,14 @@ const Tab = () => {
       <h1>家計簿アプリ</h1>
       <button
         className={activeTab === 'tab1' ? 'IsActive' : ''}
-        onClick={() =>
-          setActiveTab('tab1')
-        }>
+        onClick={() => setActiveTab('tab1')}>
         日々の記録
       </button>
       <button
         className={activeTab === 'tab2' ? 'IsActive' : ''}
-        onClick={() =>
-          setActiveTab('tab2')
-        }>
+        onClick={() => setActiveTab('tab2')}>
         月間レポート
-        </button>
+      </button>
       {activeTab === 'tab1' ? <Form /> : <Report />}
     </div>
   );
